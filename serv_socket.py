@@ -1,47 +1,44 @@
-
 #!/usr/bin/env python
-#instalacion: pip install sockets
 
-import socket
+import socket #instalacion: pip install sockets
 import time
 
- 
-def run(mpu):
-  Mpu = mpu
-  info = (0.3, 0.9, 14.5, 1300) #(pitch, roll, yaw, h)
-  ready = False
+"""Crea un server socket y mediante tcp recibe informacion sobre el vuelo, la decodifica
+ y la devuelve como parametro"""
+def run():
 
-  TCP_IP = '192.168.1.74' #debe ser estatica
-  TCP_PORT = 12345
-  BUFFER_SIZE = 1024
+  TCP_IP = '192.168.1.52' #dir ip
+  TCP_PORT = 12345 #puerto tcp
+  BUFFER_SIZE = 1024 #tam ventana de datos
 
-  s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  #creamos server socket
+  s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
   s.bind((TCP_IP, TCP_PORT))
   s.listen(1)
 
-  print("servidor listo, esperando clientes")
+  print("servidor listo, esperando cliente...")
   time.sleep(1)
-  c,d = s.accept()
+  c,d = s.accept() #acepto conexion del cliente
   print("un cliente se ha conectado")
-  while not ready:
 
-    data = c.recv(BUFFER_SIZE).decode() ##elimina los caracteres raros
-    if not data: break
-    print ("received data:", data)
-  	
-    if data == 'SndInfo':
-     print ("SndInfo detectado")
-     #c.sendall(str(info).encode())##el encode convierte a bytes los str
-     c.sendall(str(Mpu.getPitchRoll()).encode())
+  data = c.recv(BUFFER_SIZE).decode() #recibimos mensaje
+  c.close() #cerramos conexion
 
-    elif str(data).startswith('Coords'):
-      print("coordenadas recibidas")
-      c.sendall(str('fin').encode())
-      ready = True
+  data = data[2:] #eliminamos primera y segunda letra que son chars no validos 
+ 
+  altura, coords = convertStr(data); #decodificamos informacion
+  print ("altura", altura)
+  print ("coordenadas", coords)
+  return altura,coords
 
-    else:
-     print ("comando desconocido")
-
-  print("cliente desconectado")
-  c.close()
-  return str(data)
+"""decodifica el mensaje recibido via TCP y devuelve una tupla con la altura
+y la lista de coordenadas"""
+def convertStr(msg):
+	arr = msg.split("|") #separamos por barras
+	altura = float(arr[0]) #la altura la convertimos a float
+	arr = arr[1:] #todos menos el primero
+	coords = []
+	for elem in arr: #creamos tupla de floats con la latitud y longitud de los puntos del recorrido
+		aux = elem.split(",")
+		coords.append((float(aux[0]),float(aux[1])))
+	return altura, coords

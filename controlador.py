@@ -1,6 +1,6 @@
-import acelerometro
-import tcpSocket
+import serv_socket
 
-mpu = acelerometro.MPU()
-coords = tcpSocket.run(mpu)
-print (coords)
+def autorun():
+    altura, coords = serv_socket.run()
+
+autorun()
