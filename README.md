@@ -1,4 +1,3 @@
-# TFG
 ## Estructura
 ### Android_app
 Se encuentra dentro de la carpeta android_app subdividida en:
