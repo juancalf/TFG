@@ -1,42 +1,38 @@
-# uso del MPU9250
 import spidev
 import time
 import argparse
 import sys
-import navio.mpu9250
 import navio.util
-import math
+from Complementary_Filter import comp_filt
 
-class MPU:
+navio.util.check_apm()
 
-	mpu = navio.mpu9250.MPU9250()
+posicion = comp_filt()
+posicion.init()
 
-	def ini(self):
-		navio.util.check_apm()
-		self.mpu.initialize()
-		time.sleep(1)
-		self.mpu.calib_mag()
-		if self.mpu.testConnection():
-			print ("Conexion establecida")
-			return True
-		else:
-			sys.exit("Error: no conectado")
-			return False
+#De los dos sensores usamos el lsm que es mas preciso
+#imu = navio.mpu9250.MPU9250()
+imu = navio.lsm9ds1.LSM9DS1()
 
-	def getPitchRoll(self):
-		self.mpu.read_acc()
-		acc_x = self.mpu.accelerometer_data[0]
-		acc_y = self.mpu.accelerometer_data[1]
-		acc_z = self.mpu.accelerometer_data[2]
-		pitch = math.degrees(math.atan(acc_y/acc_z))
-		roll = math.degrees(math.atan((-acc_x)/math.sqrt(acc_y**2 + acc_z**2)))
-		return pitch, roll
+if imu.testConnection():
+    print "Connection established: True"
+else:
+    sys.exit("Connection established: False")
 
-	def getPitchRollRad(self):
-		self.mpu.read_acc()
-		acc_x = self.mpu.accelerometer_data[0]
-		acc_y = self.mpu.accelerometer_data[1]
-		acc_z = self.mpu.accelerometer_data[2]
-		pith = math.atan(acc_y/acc_z)
-		roll = math.atan((-acc_x)/math.sqrt(acc_y**2 + acc_z**2))
-		return pitch, roll
+imu.initialize()
+time.sleep(1)
+
+while 1:
+	m9a, m9g, m9m = imu.getMotion9()
+
+	posicion.attitude3(float(m9a[0]),float(m9a[1]),float(m9a[2]),float(m9g[0]),float(m9g[1]),
+		float(m9g[2]),float(m9m[0]),float(m9m[1]),float(m9m[2]))
+
+	roll = -posicion.pitch_d
+	pitch = -posicion.roll_d
+	yaw = posicion.yaw_d
+	print "pitch", pitch
+	print "roll", roll
+	print "yaw" , yaw
+	posicion.reset()
+	time.sleep(0.5)
