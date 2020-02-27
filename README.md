@@ -23,6 +23,8 @@ Se encuentra dentro de la carpeta reconocimiento subdividida en:
 Contiene la carpeta "navio" con los drivers de la placa además de los siguientes archivos:
   - serv_socket.py: archivo correspondiente al servidor tcp.
   - led.py: archivo de control de los leds de la parte superior.
-  - barometro: su utilidad es la de devolvernos la altura a la que se encuentra el aparato.
+  - barometro.py: su utilidad es la de devolvernos la altura a la que se encuentra el aparato.
+  - acelerometro.py: ....descr
+  - Complementary_Filter.py: ....descr
 
 
