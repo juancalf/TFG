@@ -9,7 +9,6 @@ class Barometro:
     ## altitud a la que despega el dron, restar con la actual para conocer a que altura se encuentra
 
     def __init__(self):
-        print ("cal")
         navio.util.check_apm()
         self.baro.initialize()
         time.sleep(0.1)
