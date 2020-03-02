@@ -50,5 +50,5 @@ class Acelerometro:
             print "pitch", pitch
             print "roll", roll
             print "yaw" , yaw
-
+            self.posicion.reset()
             time.sleep(0.5)
