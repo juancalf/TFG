@@ -23,8 +23,9 @@ Se encuentra dentro de la carpeta reconocimiento subdividida en:
 Contiene la carpeta "navio" con los drivers de la placa además de los siguientes archivos:
   - serv_socket.py: archivo correspondiente al servidor tcp.
   - led.py: archivo de control de los leds de la parte superior.
-  - barometro.py: su utilidad es la de devolvernos la altura a la que se encuentra el aparato.
-  - acelerometro.py: ....descr
-  - Complementary_Filter.py: ....descr
+  - barometro.py: permite conocer la altura a la que se encuentra el dron.
+  - acelerometro.py: devuelve información sobre el pitch, roll y yaw corregido.
+  - Complementary_Filter.py: realiza las mediciones del acelerómetro, magnetómetro y giroscopio filtrando estas últimas
+    calculando además pitch, roll y yaw (actúa como driver).
 
 
