@@ -5,24 +5,32 @@ import navio.util
 class Barometer:
 
 	baro = navio.ms5611.MS5611()
+	altitudBase = 0.0 
+	## altitud a la que despega el dron, restar con la actual para conocer a que altura se encuentra
 
 	def ini(self):
 		navio.util.check_apm()
 		self.baro.initialize()
+		time.sleep(0.1)
+		self.setAltitudIni(3,2) ##valores escogidos al azar
 
-	def getAltitude(self, muestras, decimales): #filtro de media movil
+	def getAltitud_abs(self, muestras, decimales):
 		presiones = []
 		for i in range(0,muestras):
-		 presiones.append(self._getPress_()) #cmp
+		 presiones.append(self._getPres_()) #cmp
 		 time.sleep(0.01) #mirar si podemos quitarlo #cmp
 
 		presionRef = sum(presiones)/muestras
-		return round(self._getAltitude_(presionRef), decimales)
+		return round(self._getAltitud_(presionRef), decimales)
 
-	def _getAltitude_(self, pressure):
+	def getAltitud_real(self, muestras, decimales):
+		altitud = self.getAltitud_abs(muestras, decimales)
+		return altitud - altitudBase
+
+	def _getAltitud_(self, pressure):
 		return 44330 * (1 - (pressure / 1013.25)**(1/5.255))
 
-	def _getPress_(self):
+	def _getPres_(self):
 		self.baro.refreshPressure()
 		time.sleep(0.01) # Waiting for pressure data ready 10ms
 		self.baro.readPressure()
@@ -33,3 +41,9 @@ class Barometer:
 
 		self.baro.calculatePressureAndTemperature()
 		return self.baro.PRES
+
+	def setAltitudIni(self, muestras, decimales):
+		altitudAbs = self.getAltitud_abs(muestras, decimales)
+		self.altitudBase = altitudAbs
+
+## ESTA VERSION DEL CODIGO NO HA SIDO PROBADA
