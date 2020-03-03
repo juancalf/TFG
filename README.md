@@ -27,5 +27,6 @@ Contiene la carpeta "navio" con los drivers de la placa además de los siguiente
   - acelerometro.py: devuelve información sobre el pitch, roll y yaw corregido.
   - Complementary_Filter.py: realiza las mediciones del acelerómetro, magnetómetro y giroscopio filtrando estas últimas
     calculando además pitch, roll y yaw (actúa como driver).
+  - gps.py: proporciona información acerca de las coordenadas (latitud y longitud).
 
 
