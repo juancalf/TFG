@@ -32,72 +32,62 @@ class Pwm:
     # otras variables
     calibrado = False 
     funcionando = False 
+    thread = threading.Thread(target=self._loop_)
 
 
     def __init__(self):
         navio.util.check_apm()
 
-        pwm_1.initialize()
-        pwm_2.initialize()
-        pwm_3.initialize()
-        pwm_4.initialize()
+        self.pwm_1.initialize()
+        self.pwm_2.initialize()
+        self.pwm_3.initialize()
+        self.pwm_4.initialize()
 
         # por defecto periodo de 50hz
-        pwm_1.set_period(50)
-        pwm_2.set_period(50)
-        pwm_3.set_period(50)
-        pwm_4.set_period(50)
+        self.pwm_1.set_period(50)
+        self.pwm_2.set_period(50)
+        self.pwm_3.set_period(50)
+        self.pwm_4.set_period(50)
 
-        pwm_1.enable()
-        pwm_2.enable()
-        pwm_3.enable()
-        pwm_4.enable()
+        self.pwm_1.enable()
+        self.pwm_2.enable()
+        self.pwm_3.enable()
+        self.pwm_4.enable()
 
     """funcion de calibracion, se debe llamar antes de usar los motores"""   
     def calibracion(self):
-        aplicarThrottle(100,100,100,100) # 100%
+        self.aplicarThrottle(2.000,2.000,2.000,2.000) # 100%
         print ("ESCs nivel maximo")
         print("conectar bateria")
         time.sleep(10) ## esperamos 10s a que los variadores confirmen
-        aplicarThrottle(0,0,0,0) # 0% 
+        self.aplicarThrottle(1.000,1.000,1.000,1.000) # 0% 
         print ("ESCs nivel minimo")
         time.sleep(10)
-        aplicarThrottle(10,10,10,10) # 10%
+        self.aplicarThrottle(1.100,1.100,1.100,1.100) # 10%
         print ("calibracion completada")
-        time.sleep(6)
-        aplicarThrottle(0,0,0,0)
-        funcionando = False ##SOLO PARA DEPURACION
+        time.sleep(5)
+        self.aplicarThrottle(1.000,1.000,1.000,1.000)
+
 
     def _loop_(self):
         while funcionando:
-            pwm_1.set_duty_cycle(motor1)
-            pwm_2.set_duty_cycle(motor2)
-            pwm_3.set_duty_cycle(motor3)
-            pwm_4.set_duty_cycle(motor4)
+            self.pwm_1.set_duty_cycle(self.motor1)
+            self.pwm_2.set_duty_cycle(self.motor2)
+            self.pwm_3.set_duty_cycle(self.motor3)
+            self.pwm_4.set_duty_cycle(self.motor4)
 
     def aplicarThrottle(self,m1,m2,m3,m4):
-        self.motor1 = porcentajeToms(m1)
-        self.motor2 = porcentajeToms(m2)
-        self.motor3 = porcentajeToms(m3)
-        self.motor4 = porcentajeToms(m4)
+        self.motor1 = self.m1
+        self.motor2 = self.m2
+        self.motor3 = self.m3
+        self.motor4 = self.m4
+
+    def conectarMotores(self):
+        self.funcionando = True
+        self.thread.start()
 
     def desconectarMotores(self):
-        self.funcionando = False;
-        ## faltaria un join o algo parecido
-
-    #sin comprobar
-    """funcion de conversion de porcentaje a milisegundos""" 
-    def porcentajeToms(self,porcentaje):
-        if porcentaje < 0 or porcentaje > 100: # 0% - 100%
-            sys.exit("error, valores fuera de rango")
-        else:
-            if porcentaje == 0:
-                res = 1.000
-            elif porcentaje == 100:
-                res = 2.000
-            else:
-                res = 1.000 + porcentaje*0.01
-        return res
-
+        self.funcionando = False
+        self.thread.join()
 
 
