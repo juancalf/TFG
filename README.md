@@ -6,8 +6,6 @@ Se encuentra dentro de la carpeta android_app subdividida en:
   - archivos_xml: ficheros fuente de los archivos .xml usados en la aplicación.
 ### Archivos 3d
 Contiene los archivos stl originales y modificados usados durante la construcción del dron.
-### Control
-Contiene el archivo "controlador.py" que es el encargado de gestionar todos los archivos.
 ### Memoria
 Contiene la memoria en pdf y docx del trabajo.
 ### Reconocimiento
@@ -29,4 +27,8 @@ Contiene la carpeta "navio" con los drivers de la placa además de los siguiente
     calculando además pitch, roll y yaw (actúa como driver).
   - gps.py: proporciona información acerca de las coordenadas (latitud y longitud).
 
-
+### Simulador
+Contiene tres archivos referentes a la simulación virtual del prototipo:
+ - graf.py: reproduce el resultado de la simulación creando una gráfica que evoluciona temporalmente, variando su posición, velocidad y orientación.
+ - uav.py: en el esta programado el modelo y el controlador del dron.
+ - simulador.py: lanza una simulación basada en los parámetros del archivo uav.py.
