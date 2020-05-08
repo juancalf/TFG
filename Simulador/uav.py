@@ -20,7 +20,7 @@ from scipy.integrate import solve_ivp, RK45
 #parametros fisicos del modelo del dron
 g = 9.8 #gravedad m/s2
 k = np.array([1.,1.,1.,1.]) #relación par motor con fuerza ascensional
-B = np.array([0.5,0.5,0.5,0.5]) #relacion resitencia helice con fuerza ascen 
+B = np.array([0.5,0.5,0.5,0.5]) #relacion resitencia helice
 kB = k/B
 b = 2. #coeficiente de rozamiento del dron con el aire
 l = 1. #longitud brazos del dron (en metros)
