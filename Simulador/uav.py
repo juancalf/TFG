@@ -17,18 +17,17 @@ import numpy as np
 import graf
 from scipy.integrate import solve_ivp, RK45
 
-#parametros fisicos del modelo del dron (metidos a capón por mi, el dron
-# pesa 6 kilos!!!)
+#parametros fisicos del modelo del dron
 g = 9.8 #gravedad m/s2
 k = np.array([1.,1.,1.,1.]) #relación par motor con fuerza ascensional
 B = np.array([0.5,0.5,0.5,0.5]) #relacion resitencia helice con fuerza ascen 
 kB = k/B
 b = 2. #coeficiente de rozamiento del dron con el aire
-l = 1. #longitud brazos del dron (en metros!!!!)
+l = 1. #longitud brazos del dron (en metros)
 M = np.array([kB,kB*[l,-l,0,0],kB*[0,0,l,-l],[1,1,-1,-1]]) #matriz de fuerzas
 #y pares
-m = 6. #masa del dron en Kg !!!
-mmt = [1.,1.,1.,1.] #masa de los motores (en kilos!!!) Nota: la masa del dron
+m = 6. #masa del dron en Kg
+mmt = [1.,1.,1.,1.] #masa de los motores (en kilos) Nota: la masa del dron
 #incluye ya la masa de los cuatros motores, aquí se separa para calcular el 
 #tensor de inercia J
 J =np.array([[l*(mmt[0]+mmt[2]),0,0],[0,l*(mmt[1]+mmt[3]),0],[0,0,l*sum(mmt)]])
