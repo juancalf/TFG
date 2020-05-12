@@ -86,7 +86,7 @@ with detection_graph.as_default():
             
             if(scores[0][0] >= umbralCaptura): 
                 if (datetime.datetime.now().second + datetime.datetime.now().minute*60 - tiempoCaptura >= intervaloCapturaMin):
-                    coords = (45.562565, -11.467381) #sacamos la informacion del modulo gps
+                    coords = gps.getCords() #sacamos la informacion del modulo gps
                     tiempoCaptura = datetime.datetime.now().second + datetime.datetime.now().minute*60
                     cv2.putText(image_np, str(coords) + " " + str(datetime.datetime.now()) , 
                            (10,700), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 55, 255), 2, cv2.LINE_AA)##añadimos informacion al pie de la imagen
