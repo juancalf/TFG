@@ -82,11 +82,17 @@ class Pwm:
         self.aplicarThrottle(self.SERVO_MIN,self.SERVO_MIN,self.SERVO_MIN,self.SERVO_MIN) # 0% 
         print ("ESCs nivel minimo")
         time.sleep(10)
-        self.aplicarThrottle(1.100,1.100,1.100,1.100) # 10%
-        print ("calibracion completada")
+        self.aplicarThrottle(1.100,self.SERVO_MIN,self.SERVO_MIN,self.SERVO_MIN) # 10%
+        time.sleep(5)
+        self.aplicarThrottle(1.100,1.100,self.SERVO_MIN,self.SERVO_MIN)
+        time.sleep(5)
+        self.aplicarThrottle(1.100,1.100,1.100,self.SERVO_MIN)
+        time.sleep(5)
+        self.aplicarThrottle(1.100,1.100.100,1.100,1.100)
         time.sleep(5)
         #apagamos motores
         self.aplicarThrottle(self.SERVO_MIN,self.SERVO_MIN,self.SERVO_MIN,self.SERVO_MIN)
+        print ("calibracion completada")
 
     """usada al finalizar el recorrido para desconectar el controlador pwm"""
     def desconectarMotores(self):
