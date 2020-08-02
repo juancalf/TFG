@@ -19,20 +19,23 @@ from matplotlib import pyplot as plt
 from PIL import Image
 from utils import label_map_util
 from utils import visualization_utils as vis_util
+import GPS
+gps = GPS.gps() #instancia del sensor gps
 print(tf.version) ##solo funciona para la version 1.* de tensorflow no para la v2
 
 ##CONSTANTES 
-intervaloCapturaMin = 10 ## minima cantidad de segundos que tiene que pasar entre capturas
+distanciaCapturaMin = 8 ## minima distancia en metros para realizar una captura
 tiempoCaptura = 0 ##guarda cuando se realizo la ultima captura en segundos
 umbralCaptura = 0.75 ##minimo umbral para realizar captura (en porcentaje)
+ultimaCaptura = (0,0)#coordenadas de la ultima captura
 
 ##INPUTS
-#inputVideo = cv2.VideoCapture(0) ##entrada por web cam
-inputVideo = cv2.VideoCapture("testVideos/park.mp4") ##entrada de video (para depuracion solo)
+inputVideo = cv2.VideoCapture(0) ##entrada por web cam
+#inputVideo = cv2.VideoCapture("testVideos/park.mp4") ##entrada de video (para depuracion solo)
 
 ##MODELOS
 # link: https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md
-MODEL_NAME = 'ssd_inception_v2_coco_2017_11_17'
+MODEL_NAME = 'ssd_inception_v1_coco_transfer_learning'
 #MODEL_NAME = 'ssd_mobilenet_v1_coco_2018_01_28'
 
 ##PATHS
@@ -85,8 +88,9 @@ with detection_graph.as_default():
             cv2.imshow('object detection', cv2.resize(image_np, (800, 600)))
             
             if(scores[0][0] >= umbralCaptura): 
-                if (datetime.datetime.now().second + datetime.datetime.now().minute*60 - tiempoCaptura >= intervaloCapturaMin):
+                if (distanciaGPS(gps.getCords(),ultimaCaptura)>distanciaCapturaMin):#si la distancia es mayor al umbral
                     coords = gps.getCords() #sacamos la informacion del modulo gps
+                    ultimaCaptura = coords
                     tiempoCaptura = datetime.datetime.now().second + datetime.datetime.now().minute*60
                     cv2.putText(image_np, str(coords) + " " + str(datetime.datetime.now()) , 
                            (10,700), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 55, 255), 2, cv2.LINE_AA)##añadimos informacion al pie de la imagen
@@ -96,7 +100,7 @@ with detection_graph.as_default():
                 cv2.destroyAllWindows()
                 break
 
-                
+#dadas dos coordenadas, devuelve su distancia en metros                
 def distanciaGPS(c1, c2):
     c1 = (math.radians(c1[0]),math.radians(c1[1]))
     c2 = (math.radians(c2[0]),math.radians(c2[1]))
@@ -105,3 +109,4 @@ def distanciaGPS(c1, c2):
     a = (math.sin(difLat/2))**2 + math.cos(c1[0])*math.cos(c2[0])*(math.sin(difLong/2))**2
     c = 2*math.asin(math.sqrt(a))
     return c*r*1000
+
