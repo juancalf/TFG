@@ -95,3 +95,13 @@ with detection_graph.as_default():
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 cv2.destroyAllWindows()
                 break
+
+                
+def distanciaGPS(c1, c2):
+    c1 = (math.radians(c1[0]),math.radians(c1[1]))
+    c2 = (math.radians(c2[0]),math.radians(c2[1]))
+    difLat = c2[0] - c1[0]
+    difLong = c2[1] - c1[1]
+    a = (math.sin(difLat/2))**2 + math.cos(c1[0])*math.cos(c2[0])*(math.sin(difLong/2))**2
+    c = 2*math.asin(math.sqrt(a))
+    return c*r*1000
