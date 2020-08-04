@@ -6,8 +6,7 @@ Se encuentra dentro de la carpeta android_app subdividida en:
   - archivos_xml: ficheros fuente de los archivos .xml usados en la aplicación.
 ### Archivos 3d
 Contiene los archivos stl originales y modificados usados durante la construcción del dron.
-### Memoria
-Contiene la memoria en pdf y docx del trabajo.
+
 ### Reconocimiento
 Desarrollado para versiones de tensorFlow < 2.0.
 
