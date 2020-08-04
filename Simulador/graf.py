@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Apr 10 20:50:23 2020
-Funciones auxiliares para dibujar resultados
-@author: abierto
-"""
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -50,6 +45,7 @@ def orientacion(sol):
 def velocidades(sol):
     
     fig =plt.figure()
+    
     plt.subplot(4,1,1)
     plt.plot(sol.t,sol.y[0])    
     plt.xlabel('t')

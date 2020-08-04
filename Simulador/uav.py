@@ -1,33 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Apr  4 13:06:34 2020
-Modelos tentativo de cuadrotor para hacer pruebas de control
-@author: juan
-Algunas consideraciones generales.
-las coordenadas cuerpo se consideran coordenadas NED, a efectos de calculos
-de rotaciones etcs a esos ejes se le llama ejes cuerpo (b1,b2,b3) 
-Relación de variables definidas.
-k[i]: constate de proporcionalidad entre la velocidad angular al cuadrado de una
-hélice y el empuje generado en la hélice.
-B[i] Coeficiente de rozamiento cuadrático viscoso de cada helice
-l longitud de los braxos de cuadrotor (estos sí que los supongo iguales)
-M matriz para el calculo de empujes y pares aplicados a cuadrotor 
-"""
 import numpy as np
 import graf
 from scipy.integrate import solve_ivp, RK45
+import math
 
-#parametros fisicos del modelo del dron
 g = 9.8 #gravedad m/s2
 k = np.array([1.,1.,1.,1.]) #relación par motor con fuerza ascensional
-B = np.array([0.5,0.5,0.5,0.5]) #relacion resitencia helice
+B = np.array([0.5,0.5,0.5,0.5]) #relacion resitencia helice con fuerza ascen 
 kB = k/B
 b = 2. #coeficiente de rozamiento del dron con el aire
-l = 1. #longitud brazos del dron (en metros)
+l = 0.185 #longitud brazos del dron en metros
 M = np.array([kB,kB*[l,-l,0,0],kB*[0,0,l,-l],[1,1,-1,-1]]) #matriz de fuerzas
 #y pares
-m = 6. #masa del dron en Kg
-mmt = [1.,1.,1.,1.] #masa de los motores (en kilos) Nota: la masa del dron
+m = 2.1 #masa del dron en Kg
+mmt = [0.2,0.2,0.2,0.2] #masa de los motores en Kg Nota: la masa del dron
 #incluye ya la masa de los cuatros motores, aquí se separa para calcular el 
 #tensor de inercia J
 J =np.array([[l*(mmt[0]+mmt[2]),0,0],[0,l*(mmt[1]+mmt[3]),0],[0,0,l*sum(mmt)]])
@@ -35,15 +21,17 @@ Ji =np.linalg.inv(J) #inversa del tensor de inercia
 taun = np.ones(4)*g*m/4/kB #pares de equilibrio (pares que tendrían que hacer
 #los motores para compensar la gravedad, y mantener el dron en estacionario)
 
-#####################Parámetros de control de la dinámica###################
-Tf = 60. #tiempo final de la simulación en segundos (el tiempo inicial está
-#metido a capón el solver y es cero, se podría definir aquí tambien)
-ca = 5 #valor de consigna de la altura de vuelo
-ch = -180 #rumbo respecto a norte en grados. Ojo ángulos positivos son giros
-# hacia el este ángulos negativos son giros hacia el oeste
-cv = 2. #velocidad de consigna en m/s
+###############Parámetros de control de la dinámica###################
+Tf = 3000.#tiempo final de la simulación en segundos 
+ch = 0 #rumbo respecto a norte en grados.
+cv = 0#velocidad de consigna en m/s (inicialmente vale 0)
+ca = 10 #valor de consigna de la altura de vuelo
 
-#condiciones iniciales de todas las variables de estado:
+
+cCartesianas = []
+headings = []
+contador = 0#contador de coordenadas
+
 
 y0 = np.array([0,0,0,\
                0,0,0,\
@@ -52,26 +40,20 @@ y0 = np.array([0,0,0,\
                0,0,1.,\
                0,0,0])
 
-# y0 = np.array([0,0,0,\
-#                0,0,0,\
-#                0,1,0,\
-#                -1,0,0,\
-#                0,0,1.,\
-#                0,0,0])
     
 def controlador(y,ca=0.,ch=45.,cv=0):
+    
     #controlador de altura
-    #se supone que me dan la altura positiva hacia arriba pero mis coordenadas
-    #de trabajo son NED,asi que, cambio de signo
+
     ca = -ca 
-    kpa =1 #constante de error proporcional a la altura
+    kpa =1.5 #constante de error proporcional a la altura
     kda =0.5 #constante de error derivativo a la altura
     
     kph = 1 #constante de error proporcional al rumbo
     kdh = 5 #constante de error derivativo al rumbo
     
-    kpv = 0.1 #constante error de velocidad en avante
-    kdv = 5 #constante de error en velocidad en avante
+    kpv = 0.4 #constante error de velocidad en avante
+    kdv = 4 #constante de error en velocidad en avante
     
     dtau = -kpa*np.ones(4)*(ca-y[5]) + kda*y[2]
     
@@ -91,9 +73,6 @@ def controlador(y,ca=0.,ch=45.,cv=0):
     #creamos la matriz de cambio a un sistema en que vn marca la dir x
     VN =np.array([[vn[0],vn[1]],[-vn[1],vn[0]]])
     #calculamos el p vectorial por la matriz de rumbos,
-    #quien es la matrix de rumbos??? Suponemos que el rumbo deseado no lo dan
-    #como un angulo en grados -180 a 180 con el eje de las x que 
-    #la direccion que marca el norte el NED, digamos de tierra.
     chrad = np.pi * ch / 180
     sch = np.sin(chrad)
     cch = np.cos(chrad)
@@ -106,23 +85,19 @@ def controlador(y,ca=0.,ch=45.,cv=0):
     esc = np.dot(vn,np.array([cch,sch,0]))
     vec = np.dot(Mr,vn)
     
-    #'raffiniert ist der Herrgott aber boshaft ist er nicht' (A. Einstein)
     errum = vec[2]+(esc<0)*np.sign(vec[2])+(esc==-1.)
     derrum = y[17]
-    #print(errum, derrum)
-    
+
     
     #control de velocidad
     
-    #vel= np.dot(np.array([y[0],y[1],0.]),vn)
     vel = np.dot(VN,np.array([y[0],y[1]]))
     errvel = np.array([cv,0])-vel
     
     ft = np.sqrt(2)/2
     errdvel =np.dot(np.array([[ft,ft],[-ft,ft]]),np.array([y[15],y[16]]))
     
-    #print(errvel,errdvel)
-    #print(cv,errvel)
+
     kpv2 = 1
     kdv2 = 5
     dtau[0] = dtau[0]\
@@ -137,22 +112,60 @@ def controlador(y,ca=0.,ch=45.,cv=0):
     dtau[3] = dtau[3]\
         + kph*errum + kdh*derrum\
         + kpv*errvel[0] + kdv*errdvel[1] - kpv2*errvel[1] + kdv2*errdvel[0]
-    #dtau[0:2]=dtau[0:2]+kph*errum-kdh*derrum
-    #dtau[2:4]=dtau[2:4]-kph*errum+kdh*derrum
 
     
     return dtau
        
-def dt(t,y,taun,M,m,b,J,Ji,ca,ch,cv):
-    
+#distancia entre coordenadas cartesianas
+def dist(c1, c2):
+    d = math.sqrt((c2[0]-c1[0])**2 + (c2[1]-c1[1])**2)
+    #print(d)
+    return d
+
+
+def dt(t,y,taun,M,m,b,J,Ji): 
     ''' Esta función esta pensada para construir el vector de derivadas
     temporales de los estados del quadrotor y poder así resolver las
     Ecuaciones diferenciales empleando los solvers de Scipy'''
+        
+    global ch #bearing
+    global contador #contador de coordenadas
+    global cv #velocidad
+    global ca
+
+    
+    if contador == 0: #durante el despegue
+            ch = headings[0]
+            if dist((y[3], y[4]), (0,0)) < 5: #controlamos velocidad hasta corregir el rumbo
+                cv = 1
+            else: #sobra
+                cv = 2
+                contador = 1
+    
+    elif contador < (len(headings)):#al recorrer puntos intermedios
+        if dist((y[3], y[4]), cCartesianas[contador]) < 15:
+            cv = 1
+        if dist((y[3], y[4]), cCartesianas[contador]) < 1: #distancia de menos de 10 metros 
+            ch = headings[contador]
+            contador=contador+1
+            
+            
+        if dist((y[3], y[4]), cCartesianas[contador-1])>15 and dist((y[3], y[4]), cCartesianas[contador])>15:
+            cv = 2
+
+            
+    else:#durante el aterrizaje
+         if dist((y[3], y[4]), cCartesianas[contador]) < 10:
+            cv = 0.5
+            if dist((y[3], y[4]), cCartesianas[contador]) < 2:
+                cv = 0
+                if ca > 0:
+                    ca = ca-0.02
+                else:
+                    ca = 0
+    
     dtau = controlador(y,ca,ch,cv)
     tau = (dtau +taun)*((dtau+taun)>0)
-    #print(tau)
-    #protejemos porque si nos salen pares negativos no podemos, en ppo
-    #aplicarselos a los rotores del motor...
     
     #Fuerzas y pares ejercidos
     ut = np.dot(M,tau)
@@ -170,15 +183,18 @@ def dt(t,y,taun,M,m,b,J,Ji,ca,ch,cv):
     
     return(dy)
 
-def simulador(Tf=Tf,y0=y0,ca=ca,ch=ch,cv=cv):
+def simulador(puntos, angulos):
     ''' esta función devuelve dos solver de scipy sol2 solo se ha construido 
     para depurar, el que usa el simulador es sol'''
-    print('sim',cv)
-    sol2 =RK45(lambda t,y:dt(t,y,taun,M,m,b,J,Ji,ca,ch,cv),0.,y0,Tf,max_step=0.01)
-    sol = solve_ivp(lambda t,y:dt(t,y,taun,M,m,b,J,Ji,ca,ch,cv),\
+    global cCartesianas
+    global headings
+    
+    cCartesianas = puntos
+    headings = angulos
+
+    sol2 =RK45(lambda t,y:dt(t,y,taun,M,m,b,J,Ji),0.,y0,Tf,max_step=0.01)
+    sol = solve_ivp(lambda t,y:dt(t,y,taun,M,m,b,J,Ji),\
           [0.,Tf],y0,t_eval=np.arange(0,Tf+0.1,0.1))
 
     return sol, sol2
     
-
-
