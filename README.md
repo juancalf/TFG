@@ -32,3 +32,6 @@ Contiene tres archivos referentes a la simulación virtual del prototipo:
  - graf.py: reproduce el resultado de la simulación creando una gráfica que evoluciona temporalmente, variando su posición, velocidad y orientación.
  - uav.py: en él, esta programado el modelo y el controlador del dron.
  - simulador.py: lanza una simulación basada en los parámetros del archivo uav.py.
+ 
+ ### Videos
+ Contiene todos los videos explicados en la memoria organizados en subcarpetas.
