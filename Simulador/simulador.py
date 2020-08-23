@@ -31,8 +31,8 @@ axs[1,1].remove() #borramos subplots para cambiarlos de forma
 axbig = fig.add_subplot(gs[1,0:])
 ax11 = fig.add_subplot(gs[0,1])
 
-axs[0][0].set_title('Representación 3D')
-ax11.set_title('Representación 2D')
+axs[0][0].set_title('Representación 3D(m)')
+ax11.set_title('Representación 2D(m)')
 axbig.set_title('Altura(m)')
 
 fig.tight_layout()
