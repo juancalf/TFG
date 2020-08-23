@@ -26,7 +26,7 @@ incl = 10
 #se va variando la inclinacion
 while incl < 45:
 	print("- inclinacion de +", incl ," grados")
-	pwm.write(10)#en grados
+	write(incl)#en grados
 	time.sleep(3)
 	pitch, roll, yaw = self.getPitchRollYaw()
 	if sys.argv[1] == "pitch":
@@ -36,7 +36,7 @@ while incl < 45:
 	incl = incl+10
 
 print("- inclinacion de +45 grados")
-pwm.write(45)
+write(45)
 time.sleep(3)
 pitch, roll, yaw = self.getPitchRollYaw()
 if sys.argv[1] == "pitch":
@@ -45,17 +45,17 @@ else:
  	print("  Roll: ", pitch, "grados")
 
 print("- inclinacion de + 40 grados")
-pwm.write(40)
+write(40)
 time.sleep(3)
 pitch, roll, yaw = self.getPitchRollYaw()
 if sys.argv[1] == "pitch":
 	print("  Pitch: ", pitch, "grados")
 else:
  	print("  Roll: ", pitch, "grados")
-
+incl = 40
 while incl > -45:
 	print("- inclinacion de -", incl ," grados")
-	pwm.write(10)
+	write(incl)
 	time.sleep(3)
 	pitch, roll, yaw = self.getPitchRollYaw()
 	if sys.argv[1] == "pitch":
@@ -65,7 +65,7 @@ while incl > -45:
 	incl = incl-10
 
 print("- inclinacion de -45 grados")
-pwm.write(-45)
+write(-45)
 time.sleep(3)
 pitch, roll, yaw = self.getPitchRollYaw()
 if sys.argv[1] == "pitch":
@@ -73,4 +73,9 @@ if sys.argv[1] == "pitch":
 else:
  	print("  Roll: ", pitch, "grados")
 
-pwm.write(0) #dejamos a 0 la inclinacion
+write(0) #dejamos a 0 la inclinacion
+
+
+def write (inc):
+	signal = (inc / 90.0) + 1.5 # convertimos grados a señal pwm
+	pwm.set_duty_cycle(signal)
