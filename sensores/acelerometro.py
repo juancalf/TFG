@@ -9,6 +9,7 @@ import datetime
 from Complementary_Filter import comp_filt
 
 class Acelerometro:
+    
 
     #imu = navio.mpu9250.MPU9250()
     imu = navio.lsm9ds1.LSM9DS1()
@@ -37,8 +38,12 @@ class Acelerometro:
         roll = -self.posicion.pitch_d
         pitch = -self.posicion.roll_d
         yaw = self.posicion.yaw_d
+        #psid_d = self.posicion.thetad_d
+        #phid_d = self.posicion.phid_d
+        #thetad_d = self.position.psid_d
 
         self.posicion.reset()
+        #return pitch, roll, yaw, psid_d, phid_d, thetad_d; #adaptacion del controlador al sistema real
         return pitch, roll, yaw;
 
     """funcion de depuracion, muestra pitch, roll y yaw por pantalla hasta
